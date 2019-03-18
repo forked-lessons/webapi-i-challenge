@@ -69,20 +69,31 @@ server.delete("/api/users/:id", (req, res) => {
     });
 });
 
-// server.put("/api/users/:id", (req, res) => {
-//   const { id } = req.params;
-//   const changes = req.body;
+server.put("/api/users/:id", (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
 
-//   db.update(id, changes)
-//     .then(updated => {
-//       if (update) {
-//         res.status(200).json(updated);
-//       } else {
-//         res.status(404).json({ message: "user not found" });
-//       }
-//     })
-//     .catch(error => {
-//       res.status(500).json({ message: "error posting the user" });
-//     });
-// });
+  if (changes.name && changes.bio) {
+    db.update(id, changes)
+      .then(user => {
+        if (user) {
+          res.status(200).json(user);
+        } else {
+          res.status(404).json({
+            message: "The user with the specified ID does not exist."
+          });
+        }
+      })
+      .catch(error => {
+        res
+          .status(500)
+          .json({ error: "The user information could not be modified." });
+      });
+  } else {
+    res
+      .status(400)
+      .json({ errorMessage: "Please provide name and bio for the user." });
+  }
+});
+
 server.listen(8000, () => console.log("API running on port 8000"));
